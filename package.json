@@ -1,0 +1,22 @@
+{
+  "name": "license-reaper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "f": "cd client && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timurenk0/License-Reaper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/timurenk0/License-Reaper/issues"
+  },
+  "homepage": "https://github.com/timurenk0/License-Reaper#readme"
+}
