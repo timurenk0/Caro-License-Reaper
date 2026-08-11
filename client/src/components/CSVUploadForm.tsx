@@ -1,8 +1,13 @@
 import { UploadFile } from "@mui/icons-material";
 import { Button } from "@mui/material"
 import { useState, type ChangeEvent } from "react"
+import type { StudentRow } from "../types";
 
-const CSVUploadForm = () => {
+const CSVUploadForm = ({
+    setterFunc
+}: {
+    setterFunc: (studentRows: StudentRow[]) => void
+}) => {
     const [file, setFile] = useState<File | null>(null);
   
     const handleInput = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +34,7 @@ const CSVUploadForm = () => {
             const data = await res.json();
             if (!res.ok) throw new Error("Server error. Failed to upload .csv file");
 
-            console.log(data);
+            setterFunc(data.students);
             
             return data;
         } catch (error) {
@@ -48,7 +53,7 @@ const CSVUploadForm = () => {
 
         </Button>
             
-        <Button endIcon={<UploadFile />} color="success" variant="contained" size="small" onClick={() => uploadMutation()}>Upload</Button>
+        <Button endIcon={<UploadFile />} variant="contained" size="small" onClick={() => uploadMutation()}>Upload</Button>
         </div>
         <p className="mb-2">Selected: <i>{file ? file.name : "nothing"}</i></p>
     </div>

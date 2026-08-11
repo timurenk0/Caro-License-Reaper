@@ -1,10 +1,34 @@
-const StudentList = () => {
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
+import type { StudentRow } from "../types"
+
+const StudentList = ({
+  studentRows
+}: {
+  studentRows: StudentRow[]
+}) => {
+  console.log(studentRows)
+  
   return (
     <div>
-        <p>Student List</p>
-        {[0, 1, 2, 3 ,4, 5].map(s => (
-            <p key={s} className="border">Student #{s}</p>
-        ))}
+        <p className="bg-gray-200">Student List (Total: {studentRows.length})</p>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableCell>#</TableCell>
+              <TableCell>GH Number</TableCell>
+              <TableCell>Email Address</TableCell>
+            </TableHead>
+            <TableBody>
+              {studentRows.map((sr, idx) => (
+                <TableRow key={idx}>
+                  <TableCell>{idx+1}</TableCell>
+                  <TableCell>{sr.id}</TableCell>
+                  <TableCell>{sr.email}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
     </div>
   )
 }

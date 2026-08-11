@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express"
 import multer from "multer";
 import { parse } from "csv-parse/sync";
+import normalizeStudents from "../services/normalize-students.service";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -15,7 +16,7 @@ router.post("/upload/csv", upload.single("file"), (req: Request, res: Response) 
     }
 
     const csv = req.file.buffer.toString("utf-8");
-
+    
     const rows: StudentsCSV[] = parse(csv, {
         columns: true,
         skip_empty_lines: true,
@@ -26,10 +27,12 @@ router.post("/upload/csv", upload.single("file"), (req: Request, res: Response) 
         console.error("No email address header found! Wrong .csv format uploaded")
     }
 
+    const students = normalizeStudents(rows);
+
     return res.status(201).json({
         filename: req.file.originalname,
         size: req.file.size,
-        rows
+        students
     });
 })
 
