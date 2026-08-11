@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "f": "cd client && npm run dev",
+    "b": "cd server && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
