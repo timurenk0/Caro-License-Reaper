@@ -22,7 +22,7 @@ const StudentList = ({
   
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden">
-        <p className="bg-gray-200 px-2">Student List (Processed: {processedCount}/{studentRows.length}) | Finished in {execTime === 0 ? <Timelapse /> : execTime.toFixed(2)}ms</p>
+        <p className="bg-gray-200 px-2">Student List (Processed: {processedCount}/{studentRows.length}) | Finished in {execTime === 0 ? <Timelapse /> : (execTime/1000).toFixed(2)}s</p>
         <TableContainer component={Paper} className="flex-1 min-h-0" sx={{ overflow: "auto" }}>
           <Table stickyHeader>
             <TableHead>

@@ -1,5 +1,5 @@
 import { FindInPage, UploadFile } from "@mui/icons-material";
-import { Button } from "@mui/material"
+import { Button, Tooltip } from "@mui/material"
 import { useState, type ChangeEvent } from "react"
 import type { StudentRow } from "../types";
 
@@ -11,6 +11,7 @@ const CSVUploadForm = ({
     setErr: (x: null) => void
 }) => {
     const [file, setFile] = useState<File | null>(null);
+    const [showTooltip, setShowTooltip] = useState(false);
   
     const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
@@ -22,7 +23,12 @@ const CSVUploadForm = ({
 
     const uploadMutation = async () => {
         try {
-            if (!file) throw new Error("No file selected!");
+            if (!file) {
+                setShowTooltip(true);
+                return;
+            };
+
+            setShowTooltip(false);
 
             const formData = new FormData();
             formData.append("file", file);
@@ -58,7 +64,13 @@ const CSVUploadForm = ({
 
             </Button>
                 
-            <Button startIcon={<UploadFile />} variant="contained" size="small" onClick={() => uploadMutation()}>Upload</Button>
+            <Tooltip
+                title="Please select a .csv file first"
+                open={showTooltip}
+                onClose={() => setShowTooltip(false)}
+            >
+                <Button startIcon={<UploadFile />} variant="contained" size="small" onClick={() => uploadMutation()}>Upload</Button>
+            </Tooltip>
             </div>
             <p className="mb-2">Selected: <i>{file ? file.name : "nothing"}</i></p>
         </div>
