@@ -55,7 +55,7 @@ export default function App() {
   }
 
   return (
-    <main className="p-2">
+    <main className="p-2 w-full h-full">
       { !configId ? (
         <LoginForm setterFunc={setConfigId} />
       ) : (

@@ -27,8 +27,13 @@ router.post("/login", uplaod.single("env"), (req: Request, res: Response) => {
 
     if (!credentials.TENANT_ID || !credentials.CLIENT_ID || !credentials.CLIENT_SECRET) {
         return res.status(400).json({
-            error: "Invalid .env file. Required: TENANT_ID, CLIENT_ID, and CLIENT_SECRET"
-        });
+            error: {
+                code: "VALIDATION_ERROR",
+                message: "Invalid .env file format",
+                hint: "Double-check credentials file content. Required fields: TENANT_ID, CLIENT_ID, CLIENT_SECRET",
+                status: 400
+            }
+        })
     }
 
     const configId = crypto.randomUUID();
