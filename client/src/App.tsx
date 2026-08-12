@@ -68,7 +68,7 @@ export default function App() {
 
               <CSVUploadForm setterFunc={setStudentRows} setErr={setErr} />
               <div className="my-4 flex justify-end">
-                <Button variant="contained" color="success" endIcon={<Send />} onClick={startMutation}>Start</Button>
+                <Button disabled={studentRows.length === 0} variant="contained" color="success" endIcon={<Send />} onClick={startMutation}>Start</Button>
               </div>
 
               <div className="flex-1">
