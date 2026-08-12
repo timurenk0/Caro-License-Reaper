@@ -57,12 +57,12 @@ export default function App() {
   }
 
   return (
-    <main className="p-4 w-full h-full">
+    <main className="p-4">
       { !configId ? (
         <LoginForm setterFunc={setConfigId} />
       ) : (
         <div>
-          <div hidden={!!err} className="w-full h-full grid grid-cols-2 gap-8">
+          <div hidden={!!err} className="grid grid-cols-2 gap-8">
             <section>
               <p>You've succeffully logged in!</p>
 
@@ -70,7 +70,10 @@ export default function App() {
               <div className="my-4 flex justify-end">
                 <Button variant="contained" color="success" endIcon={<Send />} onClick={startMutation}>Start</Button>
               </div>
-              <StudentList studentRows={studentRows} />
+
+              <div className="flex-1">
+                <StudentList studentRows={studentRows} />
+              </div>
             </section>
 
             <section>

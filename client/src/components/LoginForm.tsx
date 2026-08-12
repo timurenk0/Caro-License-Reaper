@@ -47,7 +47,7 @@ const LoginForm = ({
 
   
   return (
-    <div className="flex w-ful h-full justify-center items-center">
+    <div className="flex justify-center items-center">
       <div hidden={!!err} className="border rounded p-8 flex flex-col gap-4">
           <h1 className="text-2xl font-bold">Login Form</h1>
           Upload .env file with provided credentials to login

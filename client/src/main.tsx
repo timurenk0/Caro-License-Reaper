@@ -7,7 +7,7 @@ import Header from './components/Header.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <div className='h-screen w-screen flex flex-col'>
+    <div className='h-screen w-screen flex flex-col overflow-x-hidden'>
       <Header />
       <div className='flex-1 h-full w-full'>
         <App />

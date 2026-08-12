@@ -19,8 +19,8 @@ const StudentList = ({
   }
   
   return (
-    <div>
-        <p className="bg-gray-200">Student List (Processed: {processedCount}/{studentRows.length})</p>
+    <div className="flex flex-col">
+        <p className="bg-gray-200 px-2">Student List (Processed: {processedCount}/{studentRows.length})</p>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
