@@ -20,11 +20,13 @@ export function takePendingJob(jobId: string): NormalizedStudent[] | undefined {
 }
 
 export function addClient(jobId: string, res: Response) {
-    console.log("Client added!");
+    console.log("CLIENT ADDED:", jobId);
+    console.log("ALREADY EXISTS:", clients.has(jobId));
     clients.set(jobId, res);
 }
 
 export function removeClient(jobId: string) {
+    console.log("CLIENT REMOVED:", jobId);
     clients.delete(jobId);
 }
 
