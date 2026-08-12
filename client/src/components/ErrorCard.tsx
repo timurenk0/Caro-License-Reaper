@@ -10,7 +10,7 @@ const ErrorCard = ({
 }) => {
     
   return (    
-    <div className="block">
+    <div className="block absolute z-10" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
         <div className="flex justify-end">
             <button className="border px-1 mb-2 rounded cursor-pointer hover:bg-gray-200" onClick={() => onClose(null)}><Close /></button>
         </div>

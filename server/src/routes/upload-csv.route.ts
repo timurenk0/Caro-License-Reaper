@@ -23,10 +23,15 @@ router.post("/upload/csv", upload.single("file"), (req: Request, res: Response) 
         trim: true
     });
 
-    if (!rows[0] || !("Email Address" in rows[0])) {
-        console.error("No email address header found! Wrong .csv format uploaded")
-    }
-
+    if (!rows[0] || !("Email Address" in rows[0])) return res.status(400).json({
+        error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid .csv file format",
+            hint: "Double-check students file content. Required field: 'Email Address'. Optional field: 'ID's'",
+            status: 400
+        }
+    });
+    
     const students = normalizeStudents(rows);
 
     return res.status(201).json({

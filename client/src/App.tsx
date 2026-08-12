@@ -1,15 +1,17 @@
 import { useState } from "react";
 import CSVUploadForm from "./components/CSVUploadForm";
 import StudentList from "./components/StudentList";
-import type { StudentRow } from "./types";
+import type { ServerError, StudentRow } from "./types";
 import { Button } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import LoginForm from "./components/LoginForm";
+import ErrorCard from "./components/ErrorCard";
 
 export default function App() {
 
   const [studentRows, setStudentRows] = useState<StudentRow[]>([]);
   const [configId, setConfigId] = useState("");
+  const [err, setErr] = useState<ServerError | null>(null);
 
   const startMutation = async () => {
     try {
@@ -59,20 +61,27 @@ export default function App() {
       { !configId ? (
         <LoginForm setterFunc={setConfigId} />
       ) : (
-        <div className="w-full h-full grid grid-cols-2 gap-8">
-          <section>
-            <p>You've succeffully logged in!</p>
+        <div>
+          <div hidden={!!err} className="w-full h-full grid grid-cols-2 gap-8">
+            <section>
+              <p>You've succeffully logged in!</p>
 
-            <CSVUploadForm setterFunc={setStudentRows} />
-            <div className="my-4 flex justify-end">
-              <Button variant="contained" color="success" endIcon={<Send />} onClick={startMutation}>Start</Button>
-            </div>
-            <StudentList studentRows={studentRows} />
-          </section>
+              <CSVUploadForm setterFunc={setStudentRows} setErr={setErr} />
+              <div className="my-4 flex justify-end">
+                <Button variant="contained" color="success" endIcon={<Send />} onClick={startMutation}>Start</Button>
+              </div>
+              <StudentList studentRows={studentRows} />
+            </section>
 
-          <section>
-            hello
-          </section>
+            <section>
+              hello
+            </section>
+          </div>
+
+          {err && (
+            <ErrorCard error={err} onClose={setErr} />
+          )}
+          
         </div>
       ) }
     </main>
