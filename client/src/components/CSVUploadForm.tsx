@@ -1,4 +1,4 @@
-import { UploadFile } from "@mui/icons-material";
+import { FindInPage, UploadFile } from "@mui/icons-material";
 import { Button } from "@mui/material"
 import { useState, type ChangeEvent } from "react"
 import type { StudentRow } from "../types";
@@ -52,13 +52,13 @@ const CSVUploadForm = ({
         <div className="py-2 px-4 rounded-lg bg-gray-400/25">
             <p className="mb-4">Upload expelled students .csv file</p>
             <div className="flex justify-between">
-                <Button component="label" variant="outlined">
+                <Button component="label" variant="outlined" startIcon={<FindInPage />}>
                 Choose .csv
                 <input type="file" accept=".csv" hidden onChange={handleInput} />
 
             </Button>
                 
-            <Button endIcon={<UploadFile />} variant="contained" size="small" onClick={() => uploadMutation()}>Upload</Button>
+            <Button startIcon={<UploadFile />} variant="contained" size="small" onClick={() => uploadMutation()}>Upload</Button>
             </div>
             <p className="mb-2">Selected: <i>{file ? file.name : "nothing"}</i></p>
         </div>

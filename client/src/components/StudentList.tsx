@@ -1,7 +1,7 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
 import type { StudentRow } from "../types"
 import React from "react"
-import { Check, Error, Pending, QueryBuilder } from "@mui/icons-material"
+import { Done, Error, Pending, QueryBuilder } from "@mui/icons-material"
 
 const StudentList = ({
   studentRows
@@ -14,7 +14,7 @@ const StudentList = ({
   const statusIcons: Record<string, React.ReactNode> = {
     "pending": <Pending color="disabled" />,
     "processing": <QueryBuilder color="warning" />,
-    "success": <Check color="success" />,
+    "success": <Done color="success" />,
     "error": <Error color="error" />
   }
   

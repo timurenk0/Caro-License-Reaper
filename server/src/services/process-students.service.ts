@@ -11,6 +11,12 @@ export async function processStudents(
 ) {
     console.log("Started processing students");
     for (const student of students) {
+        sendJobUpdate(jobId, {
+            email: student.email,
+            status: "processing",
+            message: "Processing student entry..."
+        })
+        
         try {
             await processStudent(student, credentials);
 
