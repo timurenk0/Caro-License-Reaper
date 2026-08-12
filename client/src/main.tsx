@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <div className='h-screen w-screen flex flex-col overflow-x-hidden'>
       <Header />
-      <div className='flex-1 h-full w-full'>
+      <div className='flex-1 w-full min-h-0 overflow-hidden'>
         <App />
       </div>
     </div>

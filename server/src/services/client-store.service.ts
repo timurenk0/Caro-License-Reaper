@@ -37,3 +37,12 @@ export function sendJobUpdate(jobId: string, data: unknown) {
 
     res.write(`data: ${JSON.stringify(data)}\n\n`);
 }
+
+export function sendLogUpdate(jobId: string, message: string, level: "info" | "success" | "warn" | "error" = "info") {
+    sendJobUpdate(jobId, {
+        type: "log",
+        level,
+        message,
+        timestamp: new Date().toISOString()
+    });
+}

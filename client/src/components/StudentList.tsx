@@ -1,12 +1,14 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
 import type { StudentRow } from "../types"
 import React from "react"
-import { Done, Error, Pending, QueryBuilder } from "@mui/icons-material"
+import { Done, Error, Pending, QueryBuilder, Timelapse } from "@mui/icons-material"
 
 const StudentList = ({
-  studentRows
+  studentRows,
+  execTime
 }: {
-  studentRows: StudentRow[]
+  studentRows: StudentRow[],
+  execTime: number
 }) => {
   
   const processedCount = studentRows.filter(s => s.status === "success" || s.status === "error").length;
@@ -19,15 +21,17 @@ const StudentList = ({
   }
   
   return (
-    <div className="flex flex-col">
-        <p className="bg-gray-200 px-2">Student List (Processed: {processedCount}/{studentRows.length})</p>
-        <TableContainer component={Paper}>
-          <Table>
+    <div className="flex flex-col h-full min-h-0 overflow-hidden">
+        <p className="bg-gray-200 px-2">Student List (Processed: {processedCount}/{studentRows.length}) | Finished in {execTime === 0 ? <Timelapse /> : execTime.toFixed(2)}ms</p>
+        <TableContainer component={Paper} className="flex-1 min-h-0" sx={{ overflow: "auto" }}>
+          <Table stickyHeader>
             <TableHead>
-              <TableCell>#</TableCell>
-              <TableCell>GH Number</TableCell>
-              <TableCell>Email Address</TableCell>
-              <TableCell>Status</TableCell>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>GH Number</TableCell>
+                <TableCell>Email Address</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow>
             </TableHead>
             <TableBody>
               {studentRows.map((sr, idx) => (

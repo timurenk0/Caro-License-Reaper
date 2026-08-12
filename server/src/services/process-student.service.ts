@@ -2,16 +2,17 @@ import { GraphCredentials, NormalizedStudent } from "../types";
 import { Client } from "@microsoft/microsoft-graph-client"
 import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials"
 import { ClientSecretCredential } from "@azure/identity";
+import { sendLogUpdate } from "./client-store.service"
 
 
-const licenses = [
-    "f30db892-07e9-47e9-837c-80727f46fd3d", // Microsoft Power Automate Free
-    "314c4481-f395-4525-be8b-2ec4bb1e9d91",  // Office 365 A1 for Students
-    "c32f9321-a627-406d-a114-1f9c81aaafac" // Microsoft 365 Apps for Students
-];
+const licenses = {
+    "Microsoft Power Automate Free": "f30db892-07e9-47e9-837c-80727f46fd3d",
+    "Office 365 A1 for Students": "314c4481-f395-4525-be8b-2ec4bb1e9d91",
+    "Microsoft 365 Apps for Students": "c32f9321-a627-406d-a114-1f9c81aaafac"
+};
 
 
-export default async function processStudent(student: NormalizedStudent, credentials: GraphCredentials) {
+export default async function processStudent(jobId: string, student: NormalizedStudent, credentials: GraphCredentials) {
     try {
         const tokenCredential = new ClientSecretCredential(credentials.TENANT_ID, credentials.CLIENT_ID, credentials.CLIENT_SECRET);
         const authProvider = new TokenCredentialAuthenticationProvider(tokenCredential, { scopes: ["https://graph.microsoft.com/.default"] });
@@ -20,11 +21,13 @@ export default async function processStudent(student: NormalizedStudent, credent
             authProvider
         });
 
-        const studentId = (await fetchStudentId(client, student.email)).value[0].id;
-        await removeLicenses(client, studentId);
+        const studentId = (await fetchStudentId(jobId, client, student.email)).value[0].id;
+        await removeLicenses(jobId, client, studentId, student.email);
 
         console.log("[GRAPH_SUCCESS] Finished for current student.");        
     } catch (error) {
+        sendLogUpdate(jobId, `Failed to process student "${student.email}"`, "error");
+        console.log(error);
         throw error;
     }
 }
@@ -58,17 +61,22 @@ async function graphRetry(
     }
 }
 
-async function fetchStudentId(client: Client, email: string) {
+async function fetchStudentId(jobId: string, client: Client, email: string) {
     try {
-        return await client.api(`/users?$filter=mail eq '${email}'`).get();
+        const studentId = await client.api(`/users?$filter=mail eq '${email}'`).get();
+        sendLogUpdate(jobId, `Fetched user ID for student "${email}"`);
+
+        return studentId;
     } catch (error) {
         console.error("[GRAPH_ERROR] Failed to fetch email:", email);
+        console.log(error);
+        sendLogUpdate(jobId, `Failed to fetch user ID for student "${email}"`, "warn");
         return null;
     }
 }
 
-async function removeLicenses(client: Client, id: string) {
-    for (const license of licenses) {
+async function removeLicenses(jobId: string, client: Client, id: string, email: string) {
+    for (const [name, license] of Object.entries(licenses)) {
         console.log(`\n\n[GRAPH_INFO] Run for license ${license}`);
 
         try {
@@ -81,14 +89,16 @@ async function removeLicenses(client: Client, id: string) {
                             );
 
             console.log(`\n[GRAPH_SUCCESS] License ${license} removed for user ${id}`);
+            sendLogUpdate(jobId, `Removed "${name}" license for student "${email}"`);
 
             await sleep(2000);
         } catch (error: any) {
             const message = error.message || "";
-            console.log(message);
+            console.log(error);
 
             if (message.includes("User does not have a corresponding license")) {
                 console.log(`\n[GRAPH_WARN] License ${license} not assigned to user ${id}, skipping...`);
+                sendLogUpdate(jobId, `Student "${email}" is missing "${name}" license. Skipping...`, "warn");
                 continue;
             }
 
