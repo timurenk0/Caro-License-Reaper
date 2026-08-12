@@ -23,6 +23,25 @@ export default function App() {
 
       const { jobId } = await res.json();
       if (!res.ok) throw new Error("Failed to start license removal");
+      
+      const eventSource = new EventSource(
+        `http://localhost:3000/api/jobs/${jobId}/events`
+      );
+
+      console.log(jobId);
+
+      eventSource.onmessage = (e) => {
+        const update = JSON.parse(e.data);
+        console.log("Student update:", update);
+
+        setStudentRows(current => current.map(s => s.email === update.email ? {
+          ...s,
+          status: update.status,
+          message: update.message
+        } : s));
+
+        if (update.type === "complete") eventSource.close();
+      }
 
     } catch (error) {
       console.error(error);

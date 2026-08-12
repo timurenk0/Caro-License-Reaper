@@ -6,7 +6,6 @@ const StudentList = ({
 }: {
   studentRows: StudentRow[]
 }) => {
-  console.log(studentRows)
   
   return (
     <div>
@@ -17,6 +16,7 @@ const StudentList = ({
               <TableCell>#</TableCell>
               <TableCell>GH Number</TableCell>
               <TableCell>Email Address</TableCell>
+              <TableCell>Status</TableCell>
             </TableHead>
             <TableBody>
               {studentRows.map((sr, idx) => (
@@ -24,6 +24,7 @@ const StudentList = ({
                   <TableCell>{idx+1}</TableCell>
                   <TableCell>{sr.id}</TableCell>
                   <TableCell>{sr.email}</TableCell>
+                  <TableCell>{sr.status}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
