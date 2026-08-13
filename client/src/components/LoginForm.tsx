@@ -33,14 +33,14 @@ const LoginForm = ({
       return data;
     } catch (error) {
       console.error(error);
-      if (error instanceof Error) {
-        setErr({
-          message: error.message,
-          code: "SERVER_ERROR",
-          hint: "Check your internet connection and try again",
-          status: 500
-        })
-      }
+      // if (error instanceof Error) {
+      //   setErr({
+      //     message: error.message,
+      //     code: "SERVER_ERROR",
+      //     hint: "Check your internet connection and try again",
+      //     status: 500
+      //   })
+      // }
       return;
     }
   }
