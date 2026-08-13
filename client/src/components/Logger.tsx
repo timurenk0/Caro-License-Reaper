@@ -29,8 +29,8 @@ const Logger = ({
             <Button variant="contained" color="inherit" size="small" onClick={() => setShowLogs(false)} startIcon={<ArrowUpward />}>Hide Logs</Button>
           </div>
           <div className="p-2 flex-1 min-h-0 overflow-y-auto overflow-x-clip flex flex-col gap-y-2">
-            {logRows.length > 0 ? logRows.map(lr => (
-              <p>
+            {logRows.length > 0 ? logRows.map((lr, idx) => (
+              <p key={idx}>
                 <b className={`font-bold ${levelColors[lr.level]}`}>&gt;[{lr.level.toUpperCase()}] </b>
                 {lr.message} - {lr.timestamp}
               </p>

@@ -18,7 +18,14 @@ export default function App() {
 
   const startMutation = async () => {
     try {
-      if (studentRows.length === 0) throw new Error("Student list is empty!");
+      if (studentRows.length === 0) {
+        setErr({
+          code: "VALIDATION_ERROR",
+          message: "Uploaded .csv file is empty",
+          status: 400
+        });
+        return;
+      };
 
       const res = await fetch("http://localhost:3000/api/start", {
         method: "POST",
@@ -37,8 +44,6 @@ export default function App() {
       const eventSource = new EventSource(
         `http://localhost:3000/api/jobs/${jobId}/events`
       );
-
-      console.log(jobId);
 
       const start = performance.now();
       eventSource.onmessage = (e) => {
@@ -87,7 +92,7 @@ export default function App() {
             <section className="flex flex-col min-h-0 h-full">
               <p>You've succeffully logged in!</p>
 
-              <CSVUploadForm setterFunc={setStudentRows} setErr={setErr} />
+              <CSVUploadForm setStudentRows={setStudentRows} setErr={setErr} />
 
               <div className="my-4 flex justify-end">
                 <Button disabled={studentRows.length === 0} variant="contained" color="success" endIcon={<Send />} onClick={startMutation}>Start</Button>

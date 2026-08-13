@@ -26,7 +26,7 @@ const LoginForm = ({
       const data = await res.json();
       if (!res.ok) {
         setErr(data.error);
-        throw new Error("Server error. Failed to upload .csv file");
+        throw new Error("Server error. Failed to upload .env file");
       };
       
       setterFunc(data.configId);

@@ -4,10 +4,10 @@ import { useState, type ChangeEvent } from "react"
 import type { StudentRow } from "../types";
 
 const CSVUploadForm = ({
-    setterFunc,
+    setStudentRows,
     setErr
 }: {
-    setterFunc: (studentRows: StudentRow[]) => void,
+    setStudentRows: (studentRows: StudentRow[]) => void,
     setErr: (x: null) => void
 }) => {
     const [file, setFile] = useState<File | null>(null);
@@ -41,11 +41,11 @@ const CSVUploadForm = ({
             const data = await res.json();
             if (!res.ok) { 
                 setErr(data.error);
-                setterFunc([]);
+                setStudentRows([]);
                 throw new Error("Server error. Failed to upload .csv file");
             }
             
-            setterFunc(data.students);
+            setStudentRows(data.students);
             
             return data;
         } catch (error) {
