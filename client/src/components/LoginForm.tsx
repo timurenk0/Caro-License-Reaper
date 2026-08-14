@@ -26,21 +26,21 @@ const LoginForm = ({
       const data = await res.json();
       if (!res.ok) {
         setErr(data.error);
-        throw new Error("Server error. Failed to upload .csv file");
+        throw new Error("Server error. Failed to upload .env file");
       };
       
       setterFunc(data.configId);
       return data;
     } catch (error) {
       console.error(error);
-      if (error instanceof Error) {
-        setErr({
-          message: error.message,
-          code: "SERVER_ERROR",
-          hint: "Check your internet connection and try again",
-          status: 500
-        })
-      }
+      // if (error instanceof Error) {
+      //   setErr({
+      //     message: error.message,
+      //     code: "SERVER_ERROR",
+      //     hint: "Check your internet connection and try again",
+      //     status: 500
+      //   })
+      // }
       return;
     }
   }

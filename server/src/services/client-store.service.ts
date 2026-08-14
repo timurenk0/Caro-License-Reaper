@@ -43,6 +43,6 @@ export function sendLogUpdate(jobId: string, message: string, level: "info" | "s
         type: "log",
         level,
         message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toTimeString().slice(0, 8)
     });
 }

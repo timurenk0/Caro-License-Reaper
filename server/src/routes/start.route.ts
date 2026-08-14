@@ -1,6 +1,5 @@
 import { Router, type Request, type Response } from "express"
 import { getConfig } from "../services/config-store.service"
-import { registerJob } from "../services/client-store.service"
 import { storeJob } from "../services/job-store.service";
 
 const router = Router();
