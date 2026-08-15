@@ -1,8 +1,7 @@
 import { GraphCredentials, NormalizedStudent } from "../types";
 import { Client } from "@microsoft/microsoft-graph-client"
-import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials"
-import { ClientSecretCredential } from "@azure/identity";
 import { sendLogUpdate } from "./client-store.service"
+import { createGraphClient } from "./graph-client.service";
 
 
 const licenses = {
@@ -12,14 +11,8 @@ const licenses = {
 };
 
 
-export default async function processStudent(jobId: string, student: NormalizedStudent, credentials: GraphCredentials) {
+export default async function processStudent(jobId: string, student: NormalizedStudent, credentials: GraphCredentials, client = createGraphClient(credentials)) {
     try {
-        const tokenCredential = new ClientSecretCredential(credentials.TENANT_ID, credentials.CLIENT_ID, credentials.CLIENT_SECRET);
-        const authProvider = new TokenCredentialAuthenticationProvider(tokenCredential, { scopes: ["https://graph.microsoft.com/.default"] });
-
-        const client = Client.initWithMiddleware({
-            authProvider
-        });
 
         const studentId = (await fetchStudentId(jobId, client, student.email)).value[0].id;
         await removeLicenses(jobId, client, studentId, student.email);
