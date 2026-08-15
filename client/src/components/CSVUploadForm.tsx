@@ -31,7 +31,7 @@ const CSVUploadForm = ({
             setShowTooltip(false);
 
             const formData = new FormData();
-            formData.append("file", file);
+            formData.append("csv", file);
             
             const res = await fetch("http://localhost:3000/api/upload/csv", {
                 method: "POST",

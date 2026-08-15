@@ -8,7 +8,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 type StudentsCSV = any & { "Email Address": string }
 
-router.post("/upload/csv", upload.single("file"), (req: Request, res: Response) => {
+router.post("/upload/csv", upload.single("csv"), (req: Request, res: Response) => {
     if (!req.file) {
         return res.status(400).json({
             error: {

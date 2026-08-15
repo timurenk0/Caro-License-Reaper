@@ -5,10 +5,10 @@ import { getConfig } from "../../src/services/config-store.service";
 
 
 describe("POST /api/login", () => {
-    it("should accept a vaild .env file", async () => {
+    it("should accept a valid .env file", async () => {
         const content = `
             TENANT_ID=test-tenant-id
-            CLIENT_id=test-client-id
+            CLIENT_ID=test-client-id
             CLIENT_SECRET=test-client-secret
         `;
 
@@ -25,7 +25,7 @@ describe("POST /api/login", () => {
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
-            error: "No .env file uploaded!"
+            error: "No .env file uploaded"
         });
     });
 
@@ -41,7 +41,7 @@ describe("POST /api/login", () => {
         expect(response.body).toEqual({
             error: {
                 code: "VALIDATION_ERROR",
-                message: "Invalid .env file format!",
+                message: "Invalid .env file format",
                 hint: "Double-check credentials file content. Required fields: TENANT_ID, CLIENT_ID, CLIENT_SECRET",
                 status: 400
             }
@@ -61,8 +61,8 @@ describe("POST /api/login", () => {
         const config = getConfig(configId);
 
         expect(config).toEqual({
-            TENANT_ID: "test-tenant-id",
-            CLIENT_ID: "test-client-id",
+            TENANT_ID: "test-tenant-ID",
+            CLIENT_ID: "test-client-ID",
             CLIENT_SECRET: "test-client-secret"
         });
     });

@@ -15,7 +15,7 @@ const uplaod = multer({
 });
 
 router.post("/login", uplaod.single("env"), (req: Request, res: Response) => {
-    if (!req.file) return res.status(400).json({ error: "No .env file uploaded!" });
+    if (!req.file) return res.status(400).json({ error: "No .env file uploaded" });
 
     const parsed = dotenv.parse(req.file.buffer.toString("utf-8"));
 

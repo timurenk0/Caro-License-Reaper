@@ -6,7 +6,7 @@ import app from "../../src/app"
 describe("POST /upload/csv", () => {
     it("should parse and normalize a valid .csv file", async () => {
         const content = [
-            "ID's,Email Address,",
+            "ID's,Email Address",
             "GH0000001,student.first@gisma-student.com",
             "GH0000002,student.second@gisma-student.com"
         ].join("\n");
@@ -18,9 +18,16 @@ describe("POST /upload/csv", () => {
             filename: "test.csv",
             size: Buffer.byteLength(content),
             students: [
-                "ID's,Email Address,",
-                "GH0000001,student.first@gisma-student.com",
-                "GH0000002,student.second@gisma-student.com"
+                {
+                    id: "GH0000001",
+                    email: "student.first@gisma-student.com",
+                    status: "pending"
+                },
+                {
+                    id: "GH0000002",
+                    email: "student.second@gisma-student.com",
+                    status: "pending"
+                }
             ]
         });
     });
@@ -39,9 +46,16 @@ describe("POST /upload/csv", () => {
             filename: "test.csv",
             size: Buffer.byteLength(content),
             students: [
-                "Email Address",
-                "student.first@gisma-student.com",
-                "student.second@gisma-student.com",
+                {
+                    id: undefined,
+                    email: "student.first@gisma-student.com",
+                    status: "pending"
+                },
+                {
+                    id: undefined,
+                    email: "student.second@gisma-student.com",
+                    status: "pending"
+                }
             ]
         });
     });
@@ -81,9 +95,9 @@ describe("POST /upload/csv", () => {
 
     it("should reject a row with an empty Email Address", async () => {
         const content = [
-            "ID's,Email Address,",
+            "ID's,Email Address",
             "GH0000001,student.first@gisma-student.com",
-            "GH0000002",
+            "GH0000002,",
             "GH0000003,student.second@gisma-student.com"
         ].join("\n");
 
@@ -102,12 +116,12 @@ describe("POST /upload/csv", () => {
 
     it("should reject multiple rows with an empty Email Address", async () => {
         const content = [
-            "ID's,Email Address,",
+            "ID's,Email Address",
             "GH0000001,student.first@gisma-student.com",
-            "GH0000002",
-            "GH0000003",
+            "GH0000002,",
+            "GH0000003,",
             "GH0000004,student.second@gisma-student.com",
-            "GH0000005"
+            "GH0000005,"
         ].join("\n");
 
         const response = await request(app).post("/api/upload/csv").attach("csv", Buffer.from(content), "test.csv");

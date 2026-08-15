@@ -74,7 +74,7 @@ describe("POST /api/start", () => {
 
         expect(response.status).toBe(401);
         expect(response.body).toEqual({
-            error: "Graph configuration not found!"
+            error: "Graph configuration not found"
         });
     });
 })

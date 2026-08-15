@@ -11,7 +11,7 @@ router.post("/start", (req: Request, res: Response) => {
     
     const credentials = getConfig(configId);
 
-    if (!credentials) return res.status(401).json({ error: "Graph configuration not found!" });
+    if (!credentials) return res.status(401).json({ error: "Graph configuration not found" });
 
     const jobId = crypto.randomUUID();
     
