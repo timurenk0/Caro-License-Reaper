@@ -1,6 +1,6 @@
 import { GraphCredentials, type NormalizedStudent } from "../types"
 import processStudent from "./process-student.service"
-import { sendJobUpdate, sendLogUpdate } from "./client-store.service";
+import { removeClient, sendJobUpdate, sendLogUpdate } from "./client-store.service";
 
 
 
@@ -35,7 +35,9 @@ export async function processStudents(
                     "Unknown error"
             });
             sendLogUpdate(jobId, `Failed to remove licenses for student ${student.email}`, "error");
-            
+        }
+        finally {
+            removeClient(jobId);
         }
     }
 
