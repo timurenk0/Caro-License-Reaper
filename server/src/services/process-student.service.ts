@@ -11,11 +11,16 @@ const licenses = {
 };
 
 
-export default async function processStudent(jobId: string, student: NormalizedStudent, credentials: GraphCredentials, client = createGraphClient(credentials)) {
+export default async function processStudent(jobId: string, student: NormalizedStudent, credentials: GraphCredentials, sleep: (ms: number) => Promise<unknown>, client = createGraphClient(credentials)) {
     try {
 
-        const studentId = (await fetchStudentId(jobId, client, student.email)).value[0].id;
-        await removeLicenses(jobId, client, studentId, student.email);
+        const studentData = (await fetchStudentId(jobId, client, student.email));
+
+        if (!studentData?.value?.length) throw new Error(`Student ${student.email} was not found in Microsoft Graph`);
+        
+        const studentId = studentData.value[0].id;
+        
+        await removeLicenses(jobId, client, studentId, student.email, sleep);
 
         console.log("[GRAPH_SUCCESS] Finished for current student.");        
     } catch (error) {
@@ -25,12 +30,9 @@ export default async function processStudent(jobId: string, student: NormalizedS
     }
 }
 
-function sleep(ms: number) {
-    return new Promise(res => setTimeout(res, ms));
-}
-
 async function graphRetry(
     func: () => Promise<void>,
+    sleep: (ms: number) => Promise<unknown>,
     retries = 6,
     delay = 2000
 ) {
@@ -47,7 +49,7 @@ async function graphRetry(
             console.log(`\n[GRAPH_RETRY] Concurrency error. Waiting ${delay}ms... (${retries} retries left)`);
             await sleep(delay);
 
-            return graphRetry(func, retries-1, delay*1.5);
+            return graphRetry(func, sleep, retries-1, delay*1.5);
         }
 
         throw error;
@@ -56,19 +58,20 @@ async function graphRetry(
 
 async function fetchStudentId(jobId: string, client: Client, email: string) {
     try {
-        const studentId = await client.api(`/users?$filter=mail eq '${email}'`).get();
+        const studentData = await client.api(`/users?$filter=mail eq '${email}'`).get();
         sendLogUpdate(jobId, `Fetched user ID for student "${email}"`);
 
-        return studentId;
+        return studentData;
     } catch (error) {
         console.error("[GRAPH_ERROR] Failed to fetch email:", email);
         console.log(error);
         sendLogUpdate(jobId, `Failed to fetch user ID for student "${email}"`, "warn");
+
         return null;
     }
 }
 
-async function removeLicenses(jobId: string, client: Client, id: string, email: string) {
+async function removeLicenses(jobId: string, client: Client, id: string, email: string, sleep: (ms: number) => Promise<unknown>) {
     for (const [name, license] of Object.entries(licenses)) {
         console.log(`\n\n[GRAPH_INFO] Run for license ${license}`);
 
@@ -78,7 +81,8 @@ async function removeLicenses(jobId: string, client: Client, id: string, email: 
                                         .post({
                                             addLicenses: [],
                                             removeLicenses: [license]
-                                        })
+                                        }),
+                                        sleep
                             );
 
             console.log(`\n[GRAPH_SUCCESS] License ${license} removed for user ${id}`);

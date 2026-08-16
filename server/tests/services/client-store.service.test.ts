@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import {
     registerJob,
     takePendingJob,
@@ -11,6 +11,12 @@ import type { NormalizedStudent } from "../../src/types"
 
 
 describe("pending job storage", () => {
+    const jobId = "job-1";
+
+    beforeAll(() => {
+        vi.clearAllMocks()
+    });
+    
     it("should register and retrieve a pending job", () => {
         const students: NormalizedStudent[] = [
             {
@@ -20,9 +26,9 @@ describe("pending job storage", () => {
             }
         ];
 
-        registerJob("job-1", students);
+        registerJob(jobId, students);
 
-        const result = takePendingJob("job-1");
+        const result = takePendingJob(jobId);
 
         expect(result).toEqual(students);
     });
@@ -36,24 +42,30 @@ describe("pending job storage", () => {
             }
         ];
 
-        registerJob("job-1", students);
+        registerJob(jobId, students);
 
-        takePendingJob("job-1");
+        takePendingJob(jobId);
 
-        const result = takePendingJob("job-1");
+        const result = takePendingJob(jobId);
 
         expect(result).toBeUndefined();
     });
 });
 
 describe("SSE client storage", () => {
+    const jobId = "job-1";
+
+    beforeAll(() => {
+        vi.clearAllMocks()
+    });
+    
     it("should send an update to a registered client", () => {
         const write = vi.fn();
         
         const response = { write } as any;
-        addClient("job-1", response);
+        addClient(jobId, response);
 
-        sendJobUpdate("job-1", {
+        sendJobUpdate(jobId, {
             type: "success",
             message: "License removed"
         });
@@ -79,11 +91,11 @@ describe("SSE client storage", () => {
 
         const response = { write } as any;
 
-        addClient("job-1", response);
+        addClient(jobId, response);
 
-        removeClient("job-1");
+        removeClient(jobId);
 
-        sendJobUpdate("job-1", {
+        sendJobUpdate(jobId, {
             message: "should not arrive"
         });
         
@@ -95,9 +107,9 @@ describe("SSE client storage", () => {
 
         const response = { write } as any;
 
-        addClient("job-1", response);
+        addClient(jobId, response);
 
-        sendLogUpdate("job-1", "Licenses removed successfully", "success");
+        sendLogUpdate(jobId, "Licenses removed successfully", "success");
 
         expect(write).toHaveBeenCalledTimes(1);
 

@@ -1,196 +1,172 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { GraphCredentials, NormalizedStudent } from "../../src/types";
 import processStudent from "../../src/services/process-student.service";
+import { ClientSecretCredential } from "@azure/identity";
+import { sendLogUpdate } from "../../src/services/client-store.service";
+import { Client } from "@microsoft/microsoft-graph-client";
 
+
+vi.mock("@azure/identity", () => ({
+    ClientSecretCredential: vi.fn()
+}));
+
+vi.mock("@microsoft/microsoft-graph-client", () => ({
+    Client: {
+        initWithMiddleware: vi.fn()
+    }
+}));
+
+vi.mock("../../src/services/client-store.service", () => ({
+    sendLogUpdate: vi.fn()
+}));
 
 describe("single student processing", () => {
-    beforeEach(() => vi.restoreAllMocks());
-    
+    const jobId = "job-123";
+
+    const student = {
+        id: "student-1",
+        email: "student@example.com",
+        status: "pending" as const
+    };
+
+    const credentials = {
+        TENANT_ID: "tenant-id",
+        CLIENT_ID: "client-id",
+        CLIENT_SECRET: "client-secret"
+    };
+
     const licenses = {
         "Microsoft Power Automate Free": "f30db892-07e9-47e9-837c-80727f46fd3d",
         "Office 365 A1 for Students": "314c4481-f395-4525-be8b-2ec4bb1e9d91",
         "Microsoft 365 Apps for Students": "c32f9321-a627-406d-a114-1f9c81aaafac"
     };
 
-    it("should fetch the student and remove all licenses", async () => {
-        const jobId = "job-id";
+    const getMock = vi.fn();
+    const postMock = vi.fn();
+    const apiMock = vi.fn();
 
-        const student: NormalizedStudent = {
-            id: "GH0000001",
-            email: "student.first@gisma-student.com",
-            status: "pending"
-        };
+    beforeEach(() => {
+        vi.clearAllMocks();
 
-        const credentials: GraphCredentials = {
-            TENANT_ID: "test-tenant-id",
-            CLIENT_ID: "test-client-id",
-            CLIENT_SECRET: "test-client-secret"
-        };
-
-        const get = vi.fn().mockResolvedValue({
+        getMock.mockResolvedValue({
             value: [
                 {
-                    id: "graph-client-id"
+                    id: "graph-user-123"
                 }
             ]
         });
 
-        const post = vi.fn().mockResolvedValue({});
+        postMock.mockResolvedValue({});
 
-        const api = vi.fn().mockImplementation((path: string) => {
-            if (path.includes("/users/$filter=")) {
-                return { get };
+        apiMock.mockImplementation((path: string) => {
+            if (path.startsWith("/users?$filter=")) {
+                return {
+                    get: getMock
+                };
             }
 
-            return { post }
+            return {
+                post: postMock
+            };
         });
 
-        const mockGraphClient = { api };
+        vi.mocked(Client.initWithMiddleware).mockReturnValue({
+            api: apiMock
+        } as any);
+    });
+    
+    
 
+    it("should fetch the student and remove all licenses", async () => {
+        const sleepMock = vi.fn().mockResolvedValue(undefined);
+        
         await processStudent(
             jobId,
             student,
             credentials,
-            mockGraphClient as any
+            sleepMock,
+            undefined
         );
 
-        expect(get).toHaveBeenCalledTimes(1);
-        expect(get).toHaveBeenCalledWith();
-        expect(post).toHaveBeenCalledTimes(3);
-        expect(post).toHaveBeenNthCalledWith(1, {
+        expect(ClientSecretCredential).toHaveBeenCalledWith(
+            credentials.TENANT_ID,
+            credentials.CLIENT_ID,
+            credentials.CLIENT_SECRET,
+        );
+        expect(Client.initWithMiddleware).toHaveBeenCalledTimes(1);
+        expect(getMock).toHaveBeenCalledTimes(1);
+        expect(apiMock).toHaveBeenCalledWith(`/users?$filter=mail eq '${student.email}'`)
+        expect(postMock).toHaveBeenCalledTimes(3);
+        expect(postMock).toHaveBeenNthCalledWith(1, {
             addLicenses: [],
-            removeLicenses: [
-                Object.values(licenses)[0]
-            ]
+            removeLicenses: [Object.values(licenses)[0]]
         });
-        expect(post).toHaveBeenNthCalledWith(2, {
+        expect(postMock).toHaveBeenNthCalledWith(2, {
             addLicenses: [],
-            removeLicenses: [
-                Object.values(licenses)[1]
-            ]
+            removeLicenses: [Object.values(licenses)[1]]
         });
-        expect(post).toHaveBeenNthCalledWith(3, {
+        expect(postMock).toHaveBeenNthCalledWith(3, {
             addLicenses: [],
-            removeLicenses: [
-                Object.values(licenses)[2]
-            ]
+            removeLicenses: [Object.values(licenses)[2]]
         });
+        expect(sleepMock).toHaveBeenCalledTimes(3);
+        expect(sleepMock).toHaveBeenCalledWith(2000);
     });
 
     it("should skip licenses that the student dows not have", async () => {
-        const student: NormalizedStudent = {
-            id: "GH0000001",
-            email: "student.first@gisma-student.com",
-            status: "pending"
-        };
-
-        const credentials: GraphCredentials = {
-            TENANT_ID: "test-tenant-id",
-            CLIENT_ID: "test-client-id",
-            CLIENT_SECRET: "test-client-secret"
-        };
+        const sleepMock = vi.fn().mockResolvedValue(undefined);
         
-        const get = vi.fn().mockResolvedValue({
-            value: [
-                { id: "graph-user-id" }
-            ]
-        });
-
-        const post = vi.fn().mockRejectedValueOnce(
+        postMock.mockResolvedValueOnce({}).mockRejectedValueOnce(
             new Error("User does not have a corresponding license")
         );
-
-        const api = vi.fn().mockImplementation((path: string) => {
-            if (path.includes("/users?$filter=")) {
-                return { get }
-            }
-
-            return { post }
-        });
-
-        const mockGraphClient = { api };
     
-        await expect(processStudent(
-            "job-1",
+        await processStudent(
+            jobId,
             student,
             credentials,
-            mockGraphClient as any
-        )).resolves.not.toThrow();
+            sleepMock,
+            undefined
+        );
         
-        expect(post).toHaveBeenCalledTimes(3);
+        expect(postMock).toHaveBeenCalledTimes(3);
+        expect(sendLogUpdate).toHaveBeenCalledWith(jobId, expect.stringContaining("missing"), "warn");
+        expect(sleepMock).toHaveBeenCalledTimes(2);
     });
 
     it("should throw when Graph returns an unexpected error", async () => {
-        const student: NormalizedStudent = {
-            id: "GH0000001",
-            email: "student.first@gisma-student.com",
-            status: "pending"
-        };
-
-        const credentials: GraphCredentials = {
-            TENANT_ID: "test-tenant-id",
-            CLIENT_ID: "test-client-id",
-            CLIENT_SECRET: "test-client-secret"
-        };
+        const sleepMock = vi.fn().mockResolvedValueOnce(undefined);
         
-        const get = vi.fn().mockResolvedValue({
-            value: [
-                { id: "graph-user-id" }
-            ]
-        });
-
-        const post = vi.fn().mockRejectedValue(
+        postMock.mockRejectedValueOnce(
             new Error("Internal Server Error")
         );
-
-        const api = vi.fn().mockImplementation((path: string) => {
-            if (path.includes("/users?$filter=")) {
-                return { get }
-            }
-
-            return { post }
-        });
-
-        const mockGraphClient = { api };
-
+        
         await expect(processStudent(
-            "job-1",
+            jobId,
             student,
             credentials,
-            mockGraphClient as any
+            sleepMock,
+            undefined
         )).rejects.toThrow("Internal Server Error");
+    
+        expect(sendLogUpdate).toHaveBeenCalledWith(jobId, `Failed to process student "${student.email}"`, "error");
     });
 
     it("should throw when the student cannot be found", async () => {
-        const student: NormalizedStudent = {
-            id: "GH0000001",
-            email: "student.first@gisma-student.com",
-            status: "pending"
-        };
-
-        const credentials: GraphCredentials = {
-            TENANT_ID: "test-tenant-id",
-            CLIENT_ID: "test-client-id",
-            CLIENT_SECRET: "test-client-secret"
-        };
+        const sleepMock = vi.fn().mockResolvedValue(undefined);
         
-        const get = vi.fn().mockResolvedValue({
+        getMock.mockResolvedValueOnce({
             value: []
         });
-
-        const api = vi.fn().mockReturnValue({
-            get
-        });
-
-        const mockGraphClient = { api };
 
         await expect(processStudent(
             "job-1",
             student,
             credentials,
-            mockGraphClient as any
-        )).rejects.toThrow();
-    });
+            sleepMock,
+            undefined
+        )).rejects.toThrow(`Student ${student.email} was not found in Microsoft Graph`);
 
-    it("")
+        expect(getMock).toHaveBeenCalledTimes(1);
+        expect(postMock).not.toHaveBeenCalled();
+    });
 });
